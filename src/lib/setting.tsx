@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { BigOption, checkedItem, KeyRecord, SettingContentProps } from './type';
-import { Button, Card, Checkbox, Divider } from 'antd';
+import { Button, Card, Checkbox, Divider, Select } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { DefaultOptionType } from 'antd/lib/select';
 import { DoubleLeftOutlined } from '@ant-design/icons';
 import GroupSet from './groupSett';
 import DragList from './dragList';
@@ -27,6 +28,7 @@ let saveMap: Record<string, checkedItem> = {};
 
 const SettingContent = (props: SettingContentProps) => {
   const [bigOptions, setBigOptions] = useState<BigOption[]>([]); // 所有选项
+  const [allOptions, setAllOptions] = useState<DefaultOptionType[]>([]); // 所有选项
   const [indeterminate, setIndeterminate] = React.useState(true); // 是否全选
   const [checkedList, setCheckedList] = useState<string[]>(props.computedShowKeys); // 选中的对象
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -34,6 +36,7 @@ const SettingContent = (props: SettingContentProps) => {
   // 准备数据阶段
   useEffect(() => {
     const options: BigOption[] = [];
+    const alloptions: DefaultOptionType[] = [];
     let total = 0;
 
     // 遍历可选项
@@ -45,6 +48,7 @@ const SettingContent = (props: SettingContentProps) => {
           title: record.title,
           dataIndex: record.dataIndex,
         };
+        alloptions.push({ label: record.title, value: record.dataIndex });
         records.push(record);
         total++;
       });
@@ -53,6 +57,7 @@ const SettingContent = (props: SettingContentProps) => {
     // 初始化状态
     saveMap = map;
     setTotalCount(total);
+    setAllOptions(alloptions);
     setBigOptions(options);
     setIndeterminate(checkedList.length !== total);
   }, [props.choose]);
@@ -159,6 +164,19 @@ const SettingContent = (props: SettingContentProps) => {
     props.onOk([]);
   };
 
+  const onSelectChange = (key: string) => {
+    // 选择左侧区域
+    bigOptions.forEach((group) => {
+      group.ref.current?.addCheck(key);
+    });
+    const newList = checkedList.slice();
+    if (!newList.includes(key)) {
+      // 选中右侧区域
+      newList.push(key);
+      setCheckedList(newList);
+    }
+  };
+
   const cardTitle = (
     <span>
       可选字段
@@ -170,6 +188,16 @@ const SettingContent = (props: SettingContentProps) => {
       >
         {checkedList.length}/{totalCount}
       </Checkbox>
+      <Select
+        style={{ width: '260px', marginLeft: '18px' }}
+        showSearch
+        placeholder="搜索字段可快速勾选"
+        onChange={onSelectChange}
+        filterOption={(input, option) =>
+          (option?.label ?? '' as string).toLowerCase().includes(input.toLowerCase())
+        }
+        options={allOptions}
+      />
     </span>
   );
   const dragList: checkedItem[] = [];

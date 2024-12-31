@@ -77,6 +77,11 @@ const GroupSet = React.forwardRef((props: GroupSetProps, ref) => {
         }
         setCheckedList(list);
       },
+      addCheck: (key: string) => {
+        const list = checkedList.slice();
+        list.push(key);
+        setCheckedList(list);
+      },
     };
   });
 
