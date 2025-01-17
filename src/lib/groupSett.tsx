@@ -27,26 +27,21 @@ const GroupSet = React.forwardRef((props: GroupSetProps, ref) => {
   useEffect(() => {
     const options: GroupSetOptionType[] = [];
     const checkeds: string[] = [];
-    let total = 0;
 
     // 遍历可选项
     props.records.forEach((item) => {
-      const dataIndex = item.dataIndex as string;
-      if (dataIndex) {
-        total++;
-        options.push({
-          label: item.title,
-          value: item.dataIndex,
-          originShow: item.originShow,
-        });
-        if (item.show) {
-          checkeds.push(dataIndex);
-        }
+      options.push({
+        label: item.title,
+        value: item.dataIndex,
+        originShow: item.originShow,
+      });
+      if (item.show) {
+        checkeds.push(item.dataIndex);
       }
     });
 
     // 初始化状态
-    setTotalCount(total);
+    setTotalCount(props.records.length);
     setBigOptions(options);
     setCheckedList(checkeds);
     setIndeterminate(checkeds.length !== totalCount && checkeds.length !== 0);
@@ -78,7 +73,14 @@ const GroupSet = React.forwardRef((props: GroupSetProps, ref) => {
         setCheckedList(list);
       },
       addCheck: (key: string) => {
+        const ckds = bigOptions.map((item) => item.value);
+        if (!ckds.includes(key)) {
+          return;
+        }
         const list = checkedList.slice();
+        if (list.includes(key)) {
+          return;
+        }
         list.push(key);
         setCheckedList(list);
       },
