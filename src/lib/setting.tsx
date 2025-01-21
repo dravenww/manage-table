@@ -193,9 +193,10 @@ const SettingContent = (props: SettingContentProps) => {
         showSearch
         placeholder="搜索字段可快速勾选"
         onChange={onSelectChange}
-        filterOption={(input, option) =>
-          (option?.label ?? '' as string).toLowerCase().includes(input.toLowerCase())
-        }
+        filterOption={(input, option) => {
+          const label = String(option?.label ?? '');
+          return label.toLowerCase().includes(input.toLowerCase());
+        }}
         options={allOptions}
       />
     </span>
